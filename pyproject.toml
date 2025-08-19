@@ -1,0 +1,12 @@
+[project]
+name = "ie-pipeline"
+version = "0.1.0"
+description = "Modular Information Extraction pipeline for converting meeting transcripts to knowledge graph triples"
+readme = "README.md"
+requires-python = "3.11"
+authors = [
+    {name = "Filip Kozlowski"}
+]
+keywords = ["information-extraction", "knowledge-graph", "nlp", "meeting-analysis", "transformers"]
+
+
