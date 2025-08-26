@@ -15,9 +15,9 @@
 
 ---
 
-## Cell-by-Cell Implementation Plan
+## Step-by-Step Implementation Plan
 
-### Cell 1: Environment Setup & Device Detection
+### Step 1: Environment Setup & Device Detection
 ```python
 # Purpose: Setup environment and detect optimal device
 # Time: ~30 seconds
@@ -37,7 +37,7 @@
 
 ---
 
-### Cell 2: Dataset Loading & Exploration
+### Step 2: Dataset Loading & Exploration
 ```python
 # Purpose: Load MRDA dataset and verify structure
 # Time: ~1 minute
@@ -58,7 +58,7 @@
 
 ---
 
-### Cell 3: Label Analysis & Mapping Setup
+### Step 3: Label Analysis & Mapping Setup
 ```python
 # Purpose: Verify label distribution and create mappings
 # Time: ~30 seconds
@@ -78,7 +78,7 @@
 
 ---
 
-### Cell 4: Model & Tokenizer Loading
+### Step 4: Model & Tokenizer Loading
 ```python
 # Purpose: Load DistilBERT and test basic functionality
 # Time: ~30 seconds
@@ -99,7 +99,7 @@
 
 ---
 
-### Cell 5: Data Preprocessing Pipeline
+### Step 5: Data Preprocessing Pipeline
 ```python
 # Purpose: Create and test data preprocessing
 # Time: ~2 minutes
@@ -120,7 +120,7 @@
 
 ---
 
-### Cell 6: Small-Scale Training Test (100 samples)
+### Step 6: Small-Scale Training Test (100 samples)
 ```python
 # Purpose: Test training pipeline with tiny dataset
 # Time: ~1 minute
@@ -141,7 +141,28 @@
 
 ---
 
-### Cell 7: Model Saving Test (Local)
+### Step 6B: Advanced Imbalanced Training (1000 samples)
+```python
+# Purpose: Implement sophisticated class imbalance handling
+# Time: ~3-5 minutes
+# Test: Balanced Focal Loss + Stratified Batches + Macro F1
+```
+
+**Advanced techniques:**
+- Custom WeightedTrainer with class weights in loss function
+- FocalLoss implementation for hard example mining
+- WeightedRandomSampler for stratified batch sampling
+- Macro F1-score evaluation for imbalanced performance
+
+**Success criteria:**
+- Model predicts diverse classes (not just majority)
+- Macro F1 > 0.4 (better than random ~0.08)
+- Focal loss focuses on hard examples
+- Stratified batches contain minority classes
+
+---
+
+### Step 7: Model Saving Test (Local)
 ```python
 # Purpose: Test local model saving and loading
 # Time: ~30 seconds
@@ -162,7 +183,7 @@
 
 ---
 
-### Cell 8: HuggingFace Hub Connection Test
+### Step 8: HuggingFace Hub Connection Test
 ```python
 # Purpose: Test HF Hub authentication and push capability
 # Time: ~30 seconds
@@ -183,7 +204,7 @@
 
 ---
 
-### Cell 9: Full Training Setup (Ready for Real Training)
+### Step 9: Full Training Setup (Ready for Real Training)
 ```python
 # Purpose: Setup full training configuration
 # Time: ~1 minute
@@ -204,7 +225,7 @@
 
 ---
 
-### Cell 10: Training Execution (Full Dataset)
+### Step 10: Training Execution (Full Dataset)
 ```python
 # Purpose: Execute full training with monitoring
 # Time: ~30-60 minutes (device dependent)
@@ -225,7 +246,7 @@
 
 ---
 
-### Cell 11: Model Evaluation & Analysis
+### Step 11: Model Evaluation & Analysis
 ```python
 # Purpose: Comprehensive model evaluation
 # Time: ~5 minutes
@@ -246,7 +267,7 @@
 
 ---
 
-### Cell 12: Binary Classification Mapping
+### Step 12: Binary Classification Mapping
 ```python
 # Purpose: Create and test content/non-content mapping
 # Time: ~2 minutes
@@ -267,7 +288,7 @@
 
 ---
 
-### Cell 13: Final Model Push to HuggingFace Hub
+### Step 13: Final Model Push to HuggingFace Hub
 ```python
 # Purpose: Push trained model to HF Hub
 # Time: ~2-5 minutes
@@ -288,7 +309,7 @@
 
 ---
 
-### Cell 14: End-to-End Testing
+### Step 14: End-to-End Testing
 ```python
 # Purpose: Test complete pipeline from text to prediction
 # Time: ~1 minute
@@ -322,8 +343,8 @@
 - **Versioning:** Git-based versioning through HF Hub
 
 ### Testing Protocol
-1. **Green Light:** All cells 1-9 pass → Proceed to full training
-2. **Yellow Light:** Minor issues → Fix and retest specific cells
+1. **Green Light:** All steps 1-9 pass → Proceed to full training
+2. **Yellow Light:** Minor issues → Fix and retest specific steps
 3. **Red Light:** Major issues → Stop and debug before proceeding
 
 ### Recovery Plan
@@ -334,9 +355,9 @@
 ---
 
 ## Expected Timing
-- **Setup & Testing (Cells 1-9):** ~10 minutes
-- **Full Training (Cell 10):** 30-60 minutes depending on device
-- **Evaluation & Push (Cells 11-14):** ~10 minutes
+- **Setup & Testing (Steps 1-9):** ~10 minutes
+- **Full Training (Step 10):** 30-60 minutes depending on device
+- **Evaluation & Push (Steps 11-14):** ~10 minutes
 - **Total:** 50-80 minutes for complete pipeline
 
 ## Device-Specific Expectations
