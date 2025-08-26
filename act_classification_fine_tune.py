@@ -136,17 +136,16 @@ def compute_metrics(eval_pred):
 def setup_experiment_logging(experiment_name, hyperparams):
     """Setup timestamped logging directory for experiments"""
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    results_dir = f"results/{experiment_name}_{timestamp}"
+    results_dir = f"results_ac{experiment_name}_{timestamp}"
     os.makedirs(results_dir, exist_ok=True)
-    
-    # Save hyperparameters for reproducibility
-    with open(f"{results_dir}/hyperparams.json", 'w') as f:
-        json.dump(hyperparams, f, indent=2)
-    
     return results_dir
 
 
-def comprehensive_evaluation(trainer, tokenized_datasets, id2label, results_dir):
+def comprehensive_evaluation(trainer, tokenized_datasets, id2label, results_dir, hyperparams):
+    # ===== WRITE HYPERPARAMETERS =====
+    with open(f"{results_dir}/hyperparams.json", 'w') as f:
+        json.dump(hyperparams, f, indent=2)
+
     # ===== GET PREDICTIONS =====
     predictions = trainer.predict(tokenized_datasets["validation"])
     y_true = predictions.label_ids
