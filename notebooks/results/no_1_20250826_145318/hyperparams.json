@@ -1,0 +1,15 @@
+{
+  "max_weight": 10,
+  "min_weight": 0.3,
+  "lora_dropout": 0.15,
+  "lora_r": 64,
+  "lora_alpha": 128,
+  "loss_type": "focal",
+  "no_epochs": 6,
+  "batch_size": 32,
+  "learning_rate": 0.0001,
+  "warmup_steps": 0.15,
+  "weight_decay": 0.04,
+  "focal_gamma": 2.0,
+  "loss_reduction": "mean"
+}
