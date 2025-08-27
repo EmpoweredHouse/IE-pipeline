@@ -136,7 +136,7 @@ def compute_metrics(eval_pred):
 def setup_experiment_logging(experiment_name, hyperparams):
     """Setup timestamped logging directory for experiments"""
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    results_dir = f"results_ac{experiment_name}_{timestamp}"
+    results_dir = f"results_ac/{experiment_name}_{timestamp}"
     os.makedirs(results_dir, exist_ok=True)
     return results_dir
 
@@ -354,7 +354,7 @@ def fine_tune_model(params):
     print(f"Final train loss: {advanced_result.training_loss:.4f}")
 
     results_dir = setup_experiment_logging("no_1", params)
-    comprehensive_evaluation(advanced_trainer, tokenized_datasets, id2label, results_dir)
+    comprehensive_evaluation(advanced_trainer, tokenized_datasets, id2label, results_dir, params)
 
 
 if __name__ == "__main__":
