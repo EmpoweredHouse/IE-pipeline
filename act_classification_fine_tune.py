@@ -309,8 +309,12 @@ def fine_tune_model(params):
     eval_steps = total_steps // params["no_epochs"] // 6
     save_steps = eval_steps * 3
     logging_steps = total_steps // params["no_epochs"] // 12
+    
+    # Create checkpoint directory path
+    checkpoint_output_dir = f"./ac_checkpoints/{params['checkpoints_dir']}"
+    
     advanced_training_args = TrainingArguments(
-        output_dir="./advanced_checkpoints",
+        output_dir=checkpoint_output_dir,
         save_strategy="steps",
         eval_strategy="steps",
         load_best_model_at_end=True,
@@ -366,7 +370,7 @@ if __name__ == "__main__":
         "lora_alpha": 128,
         "target_modules": ["q_lin", "v_lin", "k_lin", "out_lin"],
 
-        "no_epochs": 5,
+        "no_epochs": 1,
         "batch_size": 32,
         "learning_rate": 0.00008,
         "warmup_steps": 0.15,
@@ -375,6 +379,8 @@ if __name__ == "__main__":
         "loss_type": "focal_weighted",
         "focal_gamma": 2.0,
         "loss_reduction": "mean",
+        
+        "checkpoints_dir": "run_1",
     }
     fine_tune_model(params)
     print("Done")
