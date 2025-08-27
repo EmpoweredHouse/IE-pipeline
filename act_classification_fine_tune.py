@@ -1,6 +1,5 @@
 import json
 import os
-from datetime import datetime
 
 import numpy as np
 import pandas as pd
@@ -41,7 +40,7 @@ def detect_device():
     return device
 
 
-def preprocess_function(examples, tokenizer, label2id):
+def preprocess_function(examples, tokenizer, label2id, label_column):
     """Tokenize text and encode labels"""
     tokens = tokenizer(
         examples["text"],
@@ -50,7 +49,7 @@ def preprocess_function(examples, tokenizer, label2id):
         max_length=128,  # Actual max length is 96
         return_tensors=None
     )
-    tokens["labels"] = [label2id[label] for label in examples["general_da"]]
+    tokens["labels"] = [label2id[label] for label in examples[label_column]]
     return tokens
 
 
@@ -135,8 +134,7 @@ def compute_metrics(eval_pred):
 
 def setup_experiment_logging(experiment_name, hyperparams):
     """Setup timestamped logging directory for experiments"""
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    results_dir = f"results_ac/{experiment_name}_{timestamp}"
+    results_dir = f"ac_results/{experiment_name}"
     os.makedirs(results_dir, exist_ok=True)
     return results_dir
 
@@ -270,8 +268,11 @@ def comprehensive_evaluation(trainer, tokenized_datasets, id2label, results_dir,
 def fine_tune_model(params):
     device = detect_device()
 
+    if params["label_column"] not in ["basic_da", "general_da", "full_da"]:
+        raise ValueError(f"Invalid label column: {params['label_column']}")
+
     dataset = load_dataset("wylupek/mrda-corpus")
-    train_labels = [sample['general_da'] for sample in dataset['train']]
+    train_labels = [sample[params["label_column"]] for sample in dataset['train']]
     unique_labels = list(set(train_labels))
     unique_labels.sort()
     
@@ -280,13 +281,13 @@ def fine_tune_model(params):
 
     model = AutoModelForSequenceClassification.from_pretrained(
         params["model_name"],
-        num_labels=params["num_labels"],
+        num_labels=len(unique_labels),
         problem_type="single_label_classification"
     )
 
     tokenizer = AutoTokenizer.from_pretrained(params["model_name"])
     tokenized_datasets = dataset.map(
-        lambda x: preprocess_function(x, tokenizer, label2id),
+        lambda x: preprocess_function(x, tokenizer, label2id, params["label_column"]),
         batched=True,
         remove_columns=dataset["train"].column_names,
         desc="Tokenizing"
@@ -306,13 +307,12 @@ def fine_tune_model(params):
     class_weights_tensor = calculate_class_weights(train_labels, label2id, params["max_weight"], params["min_weight"]).to(device)
 
     total_steps = params["no_epochs"] * np.ceil(len(tokenized_datasets["train"]) / params["batch_size"])
-    eval_steps = total_steps // params["no_epochs"] // 6
-    save_steps = eval_steps * 3
+    eval_steps = total_steps // params["no_epochs"] // 4
+    save_steps = eval_steps * 2
     logging_steps = total_steps // params["no_epochs"] // 12
     
     # Create checkpoint directory path
-    checkpoint_output_dir = f"./ac_checkpoints/{params['checkpoints_dir']}"
-    
+    checkpoint_output_dir = f"./ac_checkpoints/{params['experiment_name']}"
     advanced_training_args = TrainingArguments(
         output_dir=checkpoint_output_dir,
         save_strategy="steps",
@@ -353,24 +353,24 @@ def fine_tune_model(params):
     print(f"\nAdvanced training completed!")    
     print(f"Final train loss: {advanced_result.training_loss:.4f}")
 
-    results_dir = setup_experiment_logging("no_1", params)
+    results_dir = setup_experiment_logging(params["experiment_name"], params)
     comprehensive_evaluation(advanced_trainer, tokenized_datasets, id2label, results_dir, params)
 
 
 if __name__ == "__main__":
     params = {
         "model_name": "distilbert-base-uncased",
-        "num_labels": 12,
+        "label_column": "general_da",
 
-        "max_weight": 10,
-        "min_weight": 0.3,
+        "max_weight": 3,
+        "min_weight": 0.5,
 
         "lora_dropout": 0.15,
         "lora_r": 64,
         "lora_alpha": 128,
         "target_modules": ["q_lin", "v_lin", "k_lin", "out_lin"],
 
-        "no_epochs": 1,
+        "no_epochs": 3,
         "batch_size": 32,
         "learning_rate": 0.00008,
         "warmup_steps": 0.15,
@@ -379,8 +379,9 @@ if __name__ == "__main__":
         "loss_type": "focal_weighted",
         "focal_gamma": 2.0,
         "loss_reduction": "mean",
-        
-        "checkpoints_dir": "run_1",
+
+        "experiment_name": "test",
+        "experiment_description": "test",
     }
     fine_tune_model(params)
     print("Done")
